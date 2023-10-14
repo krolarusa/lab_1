@@ -11,150 +11,111 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-    QObject::connect(pbColor, SIGNAL(clicked()), this, SLOT(on_pbColor_clicked()));
-    QObject::connect(m1, SIGNAL(changed()), this, SLOT(changeColor1()));
-    QObject::connect(m2, SIGNAL(changed()), this, SLOT(changeColor2()));
-    QObject::connect(m3, SIGNAL(changed()), this, SLOT(changeColor3()));
-    QObject::connect(m1, SIGNAL(sliderMoved()), this, SLOT(changeColor1()));
-    QObject::connect(m2, SIGNAL(sliderMoved()), this, SLOT(changeColor2()));
-    QObject::connect(m3, SIGNAL(sliderMoved()), this, SLOT(changeColor3()));
+    //соеденили кнопки и бегунки
+    QObject::connect(colorButton, SIGNAL(clicked()), this, SLOT(colorButtonClicked()));
+    QObject::connect(rgbMod, SIGNAL(changed()), this, SLOT(changeColorRGB()));
+    QObject::connect(labMod, SIGNAL(changed()), this, SLOT(changeColorLab()));
+    QObject::connect(cmykMod, SIGNAL(changed()), this, SLOT(changeColorCMYK()));
+    QObject::connect(rgbMod, SIGNAL(sliderMoved()), this, SLOT(changeColorRGB()));
+    QObject::connect(labMod, SIGNAL(sliderMoved()), this, SLOT(changeColorLab()));
+    QObject::connect(cmykMod, SIGNAL(sliderMoved()), this, SLOT(changeColorCMYK()));
+
     QPalette p = QPalette();
-    p.setBrush(QPalette::Background, Qt::black);
+    //выбрали для окна белый цвет
+    p.setBrush(QPalette::Background, Qt::white);
+    //закрасили белым
     wColor->setAutoFillBackground(true);
     wColor->setPalette(p);
+    //вывели в окно цветовой прямоугольник
     ui->setupUi(this);
+
+    //создали сетчатый макет, чтобы настроить размещение различных виджетов внутри этого макета
     QGridLayout* l = new QGridLayout;
-    QLabel* lYourColor = new QLabel;
-    lYourColor->setAlignment(Qt::AlignCenter);
-    lYourColor->setText("Your color:");
-    pbColor->setText("Choose color");
-    lYourColor->setGeometry(0,0,2,2);
-    m1->setType(type::RGB);
-    m2->setType(type::CMYK);
-    m3->setType(type::HLS);
-    l->addWidget(lYourColor, 0, 1, 1, 2);
+    //создали текстовый виджет
+    QLabel* selectedColorLabel = new QLabel;
+    //подписали виджет
+    selectedColorLabel->setText("Selected color:");
+    //подписали кнопку выбора цвета
+    colorButton->setText("Choose color");
+    rgbMod->setType(type::RGB);
+    labMod->setType(type::LAB);
+    cmykMod->setType(type::CMYK);
+
+    //размещение в сетке, где первое число номер строки, второе столбца,
+    //третье число строк, четвёртое число столбцов
+    l->addWidget(selectedColorLabel, 0, 1, 1, 2);
     l->addWidget(wColor, 1, 1, 2, 2);
-    l->addWidget(pbColor, 1, 4, 2, 1);
-    l->addWidget(m1, 3, 0, 4, 2);
-    l->addWidget(m2, 3, 2, 4, 2);
-    l->addWidget(m3, 3, 4, 4, 2);
+    l->addWidget(colorButton, 1, 4, 2, 1);
+    l->addWidget(rgbMod, 3, 0, 4, 2);
+    l->addWidget(labMod, 3, 2, 4, 2);
+    l->addWidget(cmykMod, 3, 4, 4, 2);
+    //выводим в окно макет
     ui->centralwidget->setLayout(l);
 }
 
-void MainWindow::on_pbColor_clicked(){
+//выбор цвета нажатием
+void MainWindow::colorButtonClicked(){
+    //открыли выбор
     color = QColorDialog::getColor();
+    //поменяли все 3 значения
     setColors();
+    //перекрасили цвет
     setwColor();
 }
 
-void MainWindow::changeColor1(){
-
+//меняем  цвета, если пользователь численно поменял один цвет
+void MainWindow::changeColorRGB(){
+    //пересчитываем
+    labMod->setRecalc();
+    cmykMod->setRecalc();
+    //двигаем слайдеры
+    labMod->setSliderRecalc();
+    cmykMod->setSliderRecalc();
+    //ввели введённый цвет в переменную
+    color = rgbMod->getColor();
+    //переключили остальный показатели
+    labMod->setColor(color);
+    cmykMod->setColor(color);
+    //вывели цвет в окне
+    setwColor();
+}
+void MainWindow::changeColorLab(){
+    rgbMod->setRecalc();
+    cmykMod->setRecalc();
+    rgbMod->setSliderRecalc();
+    cmykMod->setSliderRecalc();
+    color = labMod->getColor();
+    rgbMod->setColor(color);
+    cmykMod->setColor(color);
+    setwColor();
+}
+void MainWindow::changeColorCMYK(){
+    labMod->setRecalc();
+    rgbMod->setRecalc();
+    labMod->setSliderRecalc();
+    rgbMod->setSliderRecalc();
+    color = cmykMod->getColor();
+    labMod->setColor(color);
+    rgbMod->setColor(color);
+    setwColor();
 }
 
-void MainWindow::changeColor2(){
-
-}
-
-void MainWindow::changeColor3(){
-
-}
-
+//ввод цвета в три модели сразу, используется при смене цвета через окно
 void MainWindow::setColors(){
-
+    rgbMod->setColor(color);
+    labMod->setColor(color);
+    cmykMod->setColor(color);
 }
+//перекрашиваем прямоугольник
+void MainWindow::setwColor(){
+    QPalette p = QPalette();
+    p.setBrush(QPalette::Background, color);
+    wColor->setAutoFillBackground(true);
+    wColor->setPalette(p);
+}
+
+//закрыли окно
 MainWindow::~MainWindow()
 {
     delete ui;
-}
-
-
-void MainWindow::on_actionRGB_LAB_CMYK_triggered() {
-
-}
-
-void MainWindow::on_actionCMYK_RGB_HSV_triggered() {
-
-}
-
-void MainWindow::setwColor(){
-
-}
-
-void MainWindow::on_actionRGB_XYZ_CMYK_triggered() {
-
-}
-
-void MainWindow::on_actionRGB_CMYK_HLS_triggered()
-{
-
-}
-
-void MainWindow::on_actionRGB_XYZ_HSV_triggered()
-{
-
-}
-
-void MainWindow::on_actionCMYK_LAB_XYZ_triggered()
-{
-
-}
-
-void MainWindow::on_actionRGB_XYZ_LAB_triggered()
-{
-
-}
-
-void MainWindow::on_actionHSV_XYZ_LAB_triggered()
-{
-
-}
-
-void MainWindow::on_actionRGB_CMYK_HSV_triggered()
-{
-
-}
-
-void MainWindow::on_action_RGB_HSV_LAB_triggered()
-{
-
-}
-
-void MainWindow::on_actionCMYK_LAB_RGB_triggered()
-{
-
-}
-
-void MainWindow::on_actionCMYK_HLS_XYZ_triggered()
-{
-
-}
-
-void MainWindow::on_actionCMYK_LAB_HSV_triggered()
-{
-
-}
-
-void MainWindow::on_actionXYZ_LAB_HLS_triggered()
-{
-
-}
-
-void MainWindow::on_actionRGB_HLS_LAB_triggered()
-{
-
-}
-
-void MainWindow::on_actionCMYK_RGB_HLS_triggered()
-{
-
-}
-
-void MainWindow::on_actionRGB_XYZ_HLS_triggered()
-{
-
-}
-
-void MainWindow::on_actionCMYK_XYZ_RGB_triggered()
-{
-
 }

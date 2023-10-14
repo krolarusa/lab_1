@@ -9,10 +9,7 @@
 enum type{
     RGB,
     CMYK,
-    LAB,
-    HLS,
-    XYZ,
-    HSV
+    LAB
 };
 
 class Module:public QWidget
@@ -21,16 +18,19 @@ class Module:public QWidget
 
 public:
     Module();
-    void setColor(QColor);
-    void setType(type t);
+    void parChanged(QLineEdit*, int min, int max, bool);
     void outOfRangeError(int);
-    void leChanged(QLineEdit*, int min, int max, bool);
+    void setType(type t);
+    void setColor(QColor);
+    //возврат цвета
     QColor getColor(){
         return color;
     }
+    //флаг необходимости пересчёта
     void setRecalc(){
         recalc = false;
     }
+    //флаг необходимости передвижения слайдера
     void setSliderRecalc(){
         sliderRecalc = false;
     }
@@ -38,42 +38,44 @@ signals:
     void changed();
     void sliderMoved();
 private slots:
-    void le1Changed(bool = false);
-    void le2Changed(bool = false);
-    void le3Changed(bool = false);
-    void le4Changed(bool = false);
     void s1Moved();
     void s2Moved();
     void s3Moved();
     void s4Moved();
 
+    void par1Changed(bool = false);
+    void par2Changed(bool = false);
+    void par3Changed(bool = false);
+    void par4Changed(bool = false);
+
 private:
-    double func1(double);
-    double func2(double);
-    QColor colorFromXYZ(double x, double y, double z);
-    QColor colorFromLAB(double l, double a, double b);
+    void setSliders();
+
     void setRGB();
     void setCMYK();
-    void setHSV();
     void setLAB();
-    void setHLS();
-    void setXYZ();
-    void setSliders();
+    //для получения цвета из CMYK и RGB есть встроенные функции
+    QColor colorFromLAB(double l, double a, double b);
+    double func_for_LAB1(double);
+    double func_for_LAB2(double);
+
     bool recalc = true;
     bool sliderRecalc = false;
-    QColor labToColor();
-    QColor xyzToColor();
+
     QColor color;
     type type;
-    QLabel* l1 = new QLabel;
-    QLabel* l2 = new QLabel;
-    QLabel* l3 = new QLabel;
-    QLabel* l4 = new QLabel;
-    QLabel* lsystem = new QLabel;
-    QLineEdit* le1 = new QLineEdit;
-    QLineEdit* le2 = new QLineEdit;
-    QLineEdit* le3 = new QLineEdit;
-    QLineEdit* le4 = new QLineEdit;
+
+    QLabel* colorTypeName = new QLabel;
+    QLabel* letter1 = new QLabel;
+    QLabel* letter2 = new QLabel;
+    QLabel* letter3 = new QLabel;
+    QLabel* letter4 = new QLabel;
+
+    QLineEdit* box1 = new QLineEdit;
+    QLineEdit* box2 = new QLineEdit;
+    QLineEdit* box3 = new QLineEdit;
+    QLineEdit* box4 = new QLineEdit;
+
     QSlider* s1 = new QSlider(Qt::Horizontal);
     QSlider* s2 = new QSlider(Qt::Horizontal);
     QSlider* s3 = new QSlider(Qt::Horizontal);
